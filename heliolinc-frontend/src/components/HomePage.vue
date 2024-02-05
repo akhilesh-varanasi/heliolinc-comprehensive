@@ -1,6 +1,5 @@
 <template>
   <div id="app">
-    <nav-bar/>
     <section class="upload-section">
       <input type="file" ref="fileInput" @change="fileSelected" />
       <button @click="submitFile" v-if="file">Upload File</button>
@@ -24,7 +23,6 @@
 <script setup>
 import { ref } from 'vue';
 import axios from 'axios';
-import NavBar from './NavBar.vue'
 
 
 const file = ref(null);

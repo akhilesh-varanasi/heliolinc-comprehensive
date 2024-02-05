@@ -1,46 +1,59 @@
 <template>
-    <nav class="navbar">
-      <div class="logo">HelioLinc</div> <!-- Logo added -->
-      <ul class="nav-items">
-        <li class="nav-item" @click="navigateTo('/')">Home</li>
-        <li class="nav-item" @click="navigateTo('/login')">Login/Register</li>
-      </ul>
-    </nav>
- </template>
-  
-  
+  <nav class="navbar">
+    <div class="logo">HelioLinc</div>
+    <div class="spacer" v-if="!isLoggedIn"></div>
+    <ul class="nav-items">
+      <li class="nav-item" @click="navigateTo('/home')">Home</li>
+      <li class="nav-item" @click="navigateTo('/login')">Login / Register</li>
+    </ul>
+    <button @click="handleSignOut" v-if="isLoggedIn" class="sign-out-btn"> Sign out </button>
+  </nav>
+</template>
  
- 
-<script>
-    import { defineComponent } from 'vue';
-    import { useRoute, useRouter } from 'vue-router';
+<script setup>
+import { ref, onMounted } from 'vue'
+import { useRoute, useRouter } from 'vue-router';
+import { getAuth, onAuthStateChanged, signOut } from "firebase/auth";
+const router = useRouter();
+const route = useRoute();
 
-    export default defineComponent({
-    name: 'NavBar',
-    setup() {
-        const router = useRouter();
-        const route = useRoute();
-
-        const navigateTo = (path) => {
-        if (route.path !== path) {
-            router.push(path);
-        }
-        };
-
-        return { navigateTo };
+const navigateTo = (path) => {
+    if (route.path !== path) {
+        router.push(path);
     }
-    });
+};
+
+const isLoggedIn = ref(false);
+let auth;
+onMounted(() => {
+  auth = getAuth();
+  onAuthStateChanged(auth, (user) => {
+    if (user) {
+      isLoggedIn.value = true;
+    } else {
+      isLoggedIn.value = false;
+    }
+  })
+});
+
+const handleSignOut = () => {
+  signOut(auth).then(() => {
+    router.push('/login');
+  })
+}
 </script>
+
 
  
  
 <style>
 .navbar {
   display: flex;
-  justify-content: flex-start; /* Align items to start */
+  justify-content: space-between; /* Adjusted to space-between */
   align-items: center;
-  background-color: #00008B; /* Light blue background */
+  background-color: #00008B;
   padding: 10px 20px;
+  width: 100%; /* Ensure navbar spans entire width */
 }
 
 .logo {
@@ -69,6 +82,23 @@
   background-color: #B0C4DE; /* Lighter blue for hover effect */
   border-radius: 5px;
 }
+.sign-out-btn {
+  padding: 10px 15px;
+  background-color: #B0C4DE; /* Match the nav-item hover color or any color you prefer */
+  color: #FFFFFF;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+.sign-out-btn:hover {
+  background-color: #9B30FF; /* Darker blue for hover effect */
+}
+
+.spacer {
+  flex-grow: 1;
+}
+
 </style>
 
  
